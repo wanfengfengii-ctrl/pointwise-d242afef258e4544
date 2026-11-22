@@ -1,0 +1,8 @@
+{
+  "batch": "gorge-17",
+  "channels": ["X", "Y"],
+  "stations": [
+    {"station": "A", "coefficients": {"X": "1", "Y": "1"}, "offset_bounds": ["0", "0"], "rows": [["X", 0], ["Y", 0]]},
+    {"station": "B", "coefficients": {"X": "1", "Y": "1"}, "offset_bounds": ["0", "0"], "rows": [["Y", 0], ["X", 1]]}
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "stations": ["A", "B"],
+  "difference": ["X", "Y"],
+  "expected": {"status": "incompatible", "difference": null}
+}

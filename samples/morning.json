@@ -1,0 +1,6 @@
+{
+  "station": "B",
+  "rows": [["X", 0], ["Y", 0]],
+  "expected": {"status": "compatible", "difference": {"lower": "-1", "upper": "1", "lower_closed": true, "upper_closed": true}},
+  "expected_history": {"snapshots_unchanged": true, "old_receipts": [1, 2], "new_receipts": [1, 3], "acknowledged_reports": [1, 2]}
+}
