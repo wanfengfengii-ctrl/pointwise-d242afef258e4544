@@ -122,3 +122,38 @@ class TestComparison(ProjectCase):
         for offset in (0, 1):
             self.assertEqual((round(x + offset), round(3 * y + offset)), (0, 2))
         self.assert_signed(review, left, right, interval(-1, -1))
+
+    # --- regressions for the night-shift misticket -------------------------
+
+    def test_half_tick_contact_keeps_provenance(self):
+        """The incident case must still record both receipts and acknowledgment."""
+        review = self.open_review()
+        left, right = self.offline_pair(review, rows_b=ODD_ROWS)
+        report = self.assert_signed(review, left, right, ComparisonResult('incompatible', None))
+        self.assertIsNone(report.result.difference)
+        saved = read_report(review, report.report_id)
+        self.assertEqual([item.receipt_id for item in saved.sources], [left[0], right[0]])
+        self.assertEqual([item.entry for item in saved.sources], [left[2], right[2]])
+        self.assertEqual(saved.acknowledgment.report_id, report.report_id)
+        reopened = self.open_review()
+        self.assertEqual(read_report(reopened, report.report_id), report)
+
+    def test_shared_offset_is_joint_not_per_axis(self):
+        """A station cannot mix offsets across channels; the offset is one value per freeze."""
+        review = self.open_review()
+        left, right = self.offline_pair(review, offsets_a=(-1, 1), offsets_b=(-1, 1))
+        self.assert_signed(review, left, right, interval(-1, 1))
+
+    def test_unrequested_third_channel_blocks_incompatible(self):
+        review = self.open_review()
+        left, right = self.offline_pair(
+            review, rows_a=(('X', 0), ('Y', 0), ('Z', 0)), rows_b=(('X', 0), ('Y', 0), ('Z', 4)),
+            offsets_a=(-1, 1), offsets_b=(-1, 1),
+        )
+        self.assert_signed(review, left, right, ComparisonResult('incompatible', None))
+
+    def test_interval_merely_touching_at_excluded_endpoint(self):
+        """Equal, closed per-axis ranges are not enough; the joint point is excluded."""
+        review = self.open_review()
+        left, right = self.offline_pair(review, rows_b=(('X', 0), ('Y', -1)), offsets_b=(-1, -1))
+        self.assert_signed(review, left, right, interval(0, 1, False, False))
